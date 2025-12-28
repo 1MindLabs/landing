@@ -3,15 +3,15 @@ import { Project } from "../types";
 export const projects: Project[] = [
   {
     id: 1,
-    title: "Neural Synth",
+    title: "SuperBox",
     description:
-      "Generative audio synthesis using transformer models for real-time composition. This project explores the intersection of AI and music theory.",
-    imageUrl: "https://picsum.photos/seed/neural/600/400",
-    githubUrl: "#",
-    liveUrl: "#",
-    builtBy: ["Alex Chen", "David Kim"],
-    hackathon: "MIT Hack 2024",
-    date: "Sep 2024",
+      "A Docker Hub-inspired platform for discovering, deploying, and testing Model Context Protocol (MCP) servers in isolated sandboxes. Features a Python CLI for metadata management and security scanning, a Golang backend API for server registry operations, and an AWS Lambda worker for on-demand execution from Git repositories.",
+    imageUrl: "/superbox-team.jpg",
+    githubUrl: "https://github.com/areebahmeddd/superbox.ai",
+    liveUrl: "https://superbox.1mindlabs.org/",
+    builtBy: ["Areeb", "Avantika", "Rishi", "Shivansh", "Arush", "Amar", "Devansh"],
+    hackathon: "Ctrl C, Ctrl V (RVCE) & Glytch (VIT)",
+    date: "Jun-Dec 2025",
   },
   {
     id: 2,

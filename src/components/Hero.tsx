@@ -79,6 +79,13 @@ const Hero: React.FC = () => {
         >
           An umbrella for interdisciplinary hackathon projects!
         </motion.p>
+
+        <motion.p
+          variants={itemVariants}
+          className="text-sm font-medium text-neutral-500"
+        >
+          Website Under Construction (ETA: 1st Jan 2026)
+        </motion.p>
       </motion.div>
     </section>
   );
