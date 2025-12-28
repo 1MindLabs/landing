@@ -1,0 +1,32 @@
+# LLMs.txt for 1Mind Labs
+
+
+## Website Overview
+
+1Mind Labs is a student-led team focused on agentic AI, machine learning, and full-stack development. Single-page React application showcasing our team, projects, and achievements.
+
+
+## Site Structure
+
+- Hero (`/#`): Landing section with branding and social links
+- Projects (`/#projects`): 10+ hackathon projects with expandable details
+- Team (`/#team`): 20+ team members across various tech domains
+
+
+## Tech Stack
+
+- Frontend: React 19, TypeScript 5.8, Vite 6.2
+- Styling: Tailwind CSS, Framer Motion
+- Icons: Lucide React
+
+
+## Contact Information
+
+- Email: `hello@1mindlabs.org`
+- GitHub: `https://github.com/1MindLabs`
+- Twitter: `@1MindLabs`
+
+
+## License
+
+MIT License
