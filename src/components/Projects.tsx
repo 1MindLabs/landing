@@ -15,8 +15,48 @@ import { Project } from "../types";
 const Projects: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [imageIndices, setImageIndices] = useState<Record<number, number>>({
+    2: 0,
+    4: 0,
+  });
 
   const visibleProjects = isExpanded ? projects : projects.slice(0, 4);
+
+  React.useEffect(() => {
+    const timeouts: NodeJS.Timeout[] = [];
+    const intervals: NodeJS.Timeout[] = [];
+
+    const superboxDelay = 5000;
+    const payzeeDelay = 7500;
+    const cycleInterval = 5000;
+
+    const superboxTimeout = setTimeout(() => {
+      setImageIndices((prev) => ({ ...prev, 2: 1 }));
+
+      const superboxInterval = setInterval(() => {
+        setImageIndices((prev) => ({ ...prev, 2: prev[2] === 0 ? 1 : 0 }));
+      }, cycleInterval);
+
+      intervals.push(superboxInterval);
+    }, superboxDelay);
+
+    const payzeeTimeout = setTimeout(() => {
+      setImageIndices((prev) => ({ ...prev, 4: 1 }));
+
+      const payzeeInterval = setInterval(() => {
+        setImageIndices((prev) => ({ ...prev, 4: prev[4] === 0 ? 1 : 0 }));
+      }, cycleInterval);
+
+      intervals.push(payzeeInterval);
+    }, payzeeDelay);
+
+    timeouts.push(superboxTimeout, payzeeTimeout);
+
+    return () => {
+      timeouts.forEach(clearTimeout);
+      intervals.forEach(clearInterval);
+    };
+  }, []);
 
   const navigateToNext = () => {
     if (!selectedProject) return;
@@ -60,6 +100,7 @@ const Projects: React.FC = () => {
                   project={project}
                   index={index}
                   onClick={() => setSelectedProject(project)}
+                  currentImageIndex={imageIndices[project.id] || 0}
                 />
               ))}
             </AnimatePresence>
@@ -98,6 +139,7 @@ const Projects: React.FC = () => {
             onClose={() => setSelectedProject(null)}
             onNext={navigateToNext}
             onPrev={navigateToPrev}
+            currentImageIndex={imageIndices[selectedProject.id] || 0}
           />
         )}
       </AnimatePresence>
@@ -109,7 +151,16 @@ const ProjectCard: React.FC<{
   project: Project;
   index: number;
   onClick: () => void;
-}> = ({ project, index, onClick }) => {
+  currentImageIndex: number;
+}> = ({ project, index, onClick, currentImageIndex }) => {
+  const hasMultipleImages =
+    project.title.toLowerCase() === "payzee" ||
+    project.title.toLowerCase() === "superbox.ai";
+
+  const images = hasMultipleImages
+    ? [project.imageUrl, project.imageUrl.replace(/\.(jpg|png)$/, "-2.$1")]
+    : [project.imageUrl];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -124,11 +175,18 @@ const ProjectCard: React.FC<{
       className="group cursor-pointer relative z-10"
     >
       <div className="relative mb-4 aspect-[16/9] w-full overflow-hidden rounded-lg border border-neutral-800/50 bg-neutral-950">
-        <motion.img
-          src={project.imageUrl}
-          alt={project.title}
-          className="h-full w-full object-cover opacity-60 transition-all duration-500 group-hover:scale-105 group-hover:opacity-90"
-        />
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={currentImageIndex}
+            src={images[currentImageIndex]}
+            alt={project.title}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.6 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            className="h-full w-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:opacity-90"
+          />
+        </AnimatePresence>
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
       </div>
 
@@ -149,7 +207,16 @@ const ProjectModal: React.FC<{
   onClose: () => void;
   onNext: () => void;
   onPrev: () => void;
-}> = ({ project, onClose, onNext, onPrev }) => {
+  currentImageIndex: number;
+}> = ({ project, onClose, onNext, onPrev, currentImageIndex }) => {
+  const hasMultipleImages =
+    project.title.toLowerCase() === "payzee" ||
+    project.title.toLowerCase() === "superbox.ai";
+
+  const images = hasMultipleImages
+    ? [project.imageUrl, project.imageUrl.replace(/\.(jpg|png)$/, "-2.$1")]
+    : [project.imageUrl];
+
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") {
@@ -190,12 +257,19 @@ const ProjectModal: React.FC<{
         </button>
 
         <div className="flex flex-col md:flex-row">
-          <div className="relative h-56 w-full md:h-auto md:w-[45%]">
-            <img
-              src={project.imageUrl}
-              alt={project.title}
-              className="h-full w-full object-cover"
-            />
+          <div className="relative h-56 w-full md:h-auto md:w-[45%] overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={currentImageIndex}
+                src={images[currentImageIndex]}
+                alt={project.title}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.8, ease: "easeInOut" }}
+                className="h-full w-full object-cover"
+              />
+            </AnimatePresence>
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-[#0A0A0A]" />
           </div>
 

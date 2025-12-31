@@ -85,7 +85,7 @@ export const projects: Project[] = [
     id: 7,
     title: "Mivro",
     description:
-      "Cross-platform app and web extension for analyzing foods, drinks, cosmetics, medicines, and pet foods via barcode scanning and search. It provides detailed ingredient insights, categorizes nutrients based on general and user-specific health data, identifies potential health risks, and recommends healthier alternatives using an AI-powered recommendation engine.",
+      "Cross-platform app and web extension for analyzing foods, drinks, cosmetics, medicines, and pet foods via barcode scanning and search. It provides detailed ingredient insights, categorizes nutrients based on general or user-specific health data, identifies potential health risks, and recommends healthier alternatives using an AI-powered recommendation engine.",
     imageUrl: "/images/projects/mivro.jpg",
     githubUrl: "https://github.com/spacetesla/mivro",
     liveUrl: "https://mivro.1mindlabs.org",
@@ -107,6 +107,18 @@ export const projects: Project[] = [
   },
   {
     id: 9,
+    title: "Bot Craft",
+    description:
+      "Discord bot for remote workers that enables networking, mentorship matching, project team formation, and productivity tools on a virtual island. Features profile management, learning resources, brainstorming prompts, and focus utilities to enhance community building.",
+    imageUrl: "/images/projects/bot-craft.jpg",
+    githubUrl: "https://github.com/areebahmeddd/botcraft",
+    liveUrl: "#",
+    builtBy: ["Areeb", "Thendral", "Ahana", "Shirish"],
+    hackathon: "BotCraft by ByteXync (DSCE)",
+    date: "13 November 2024",
+  },
+  {
+    id: 10,
     title: "Gods Eye",
     description:
       "Automated news collection and OCR extraction system that builds datasets for trend analysis, visualizes insights with Plotly, and provides a Gemini-powered chatbot and Chrome extension for real-time misinformation detection.",
