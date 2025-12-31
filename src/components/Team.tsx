@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Linkedin, Mail, Twitter, X } from "lucide-react";
+import { Github, Linkedin, Mail, X } from "lucide-react";
 import React, { useState } from "react";
 import { team } from "../data/team";
 import { TeamMember } from "../types";
@@ -7,16 +7,30 @@ import { TeamMember } from "../types";
 const Team: React.FC = () => {
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
 
+  const navigateToNext = () => {
+    if (!selectedMember) return;
+    const currentIndex = team.findIndex((m) => m.id === selectedMember.id);
+    if (currentIndex >= team.length - 1) return;
+    setSelectedMember(team[currentIndex + 1]);
+  };
+
+  const navigateToPrev = () => {
+    if (!selectedMember) return;
+    const currentIndex = team.findIndex((m) => m.id === selectedMember.id);
+    if (currentIndex <= 0) return;
+    setSelectedMember(team[currentIndex - 1]);
+  };
+
   return (
-    <section className="container mx-auto max-w-5xl px-6 md:px-12">
+    <section className="container mx-auto max-w-5xl px-6 md:px-12 relative z-10">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false, amount: 0.3 }}
+        viewport={{ once: true, amount: 0.3 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="mb-12 border-b border-neutral-900 pb-6"
       >
-        <h2 className="text-3xl font-medium tracking-tight text-white md:text-4xl">
+        <h2 className="text-3xl font-medium tracking-tight text-white">
           The Team
         </h2>
         <p className="mt-2 text-sm text-neutral-500">
@@ -40,6 +54,8 @@ const Team: React.FC = () => {
           <TeamModal
             member={selectedMember}
             onClose={() => setSelectedMember(null)}
+            onNext={navigateToNext}
+            onPrev={navigateToPrev}
           />
         )}
       </AnimatePresence>
@@ -56,7 +72,7 @@ const TeamCard: React.FC<{
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: false, amount: 0.2 }}
+      viewport={{ once: true, amount: 0.2 }}
       transition={{
         duration: 0.6,
         delay: Math.min(index * 0.03, 0.8),
@@ -69,7 +85,7 @@ const TeamCard: React.FC<{
         <img
           src={member.imageUrl}
           alt={member.name}
-          className="h-full w-full object-cover opacity-70 transition-opacity duration-300 group-hover:opacity-100 grayscale group-hover:grayscale-0"
+          className="h-full w-full object-cover"
         />
       </div>
       <h3 className="text-base font-medium text-white transition-colors group-hover:text-neutral-200">
@@ -82,10 +98,27 @@ const TeamCard: React.FC<{
   );
 };
 
-const TeamModal: React.FC<{ member: TeamMember; onClose: () => void }> = ({
-  member,
-  onClose,
-}) => {
+const TeamModal: React.FC<{
+  member: TeamMember;
+  onClose: () => void;
+  onNext: () => void;
+  onPrev: () => void;
+}> = ({ member, onClose, onNext, onPrev }) => {
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") {
+        onNext();
+      } else if (e.key === "ArrowLeft") {
+        onPrev();
+      } else if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onNext, onPrev, onClose]);
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
       <motion.div
@@ -100,14 +133,14 @@ const TeamModal: React.FC<{ member: TeamMember; onClose: () => void }> = ({
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+        transition={{ type: "spring", damping: 30, stiffness: 300 }}
         className="relative w-full max-w-sm overflow-hidden rounded-xl border border-neutral-800 bg-[#0A0A0A] p-8 shadow-2xl text-center"
       >
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 z-20 rounded-full bg-neutral-900 p-2 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-white"
+          className="absolute right-4 top-4 z-20 rounded-full p-2 text-neutral-400 transition-colors hover:text-white"
         >
-          <X size={18} />
+          <X size={20} />
         </button>
 
         <div className="mx-auto mb-6 h-32 w-32 overflow-hidden rounded-full border border-neutral-800 bg-neutral-900">
@@ -134,14 +167,14 @@ const TeamModal: React.FC<{ member: TeamMember; onClose: () => void }> = ({
               <Linkedin size={20} />
             </a>
           )}
-          {member.twitterUrl && (
+          {member.githubUrl && (
             <a
-              href={member.twitterUrl}
+              href={member.githubUrl}
               target="_blank"
               rel="noreferrer"
               className="text-neutral-500 transition-colors hover:text-white hover:scale-110"
             >
-              <Twitter size={20} />
+              <Github size={20} />
             </a>
           )}
           {member.email && (

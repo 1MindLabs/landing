@@ -70,7 +70,10 @@ const Hero: React.FC = () => {
           variants={itemVariants}
           className="text-5xl font-semibold tracking-tight text-white sm:text-7xl md:text-8xl lg:text-9xl"
         >
-          1Mind Labs
+          1Mind{" "}
+          <span className="inline-block italic font-light tracking-wide text-neutral-300">
+            Labs
+          </span>
         </motion.h1>
 
         <motion.p
@@ -78,13 +81,6 @@ const Hero: React.FC = () => {
           className="max-w-none text-lg font-light leading-relaxed text-neutral-400 sm:text-xl md:whitespace-nowrap"
         >
           An umbrella for interdisciplinary hackathon projects!
-        </motion.p>
-
-        <motion.p
-          variants={itemVariants}
-          className="text-sm font-medium text-neutral-500"
-        >
-          Website Under Construction (ETA: 1st Jan 2026)
         </motion.p>
       </motion.div>
     </section>

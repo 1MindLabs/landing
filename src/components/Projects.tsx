@@ -18,6 +18,20 @@ const Projects: React.FC = () => {
 
   const visibleProjects = isExpanded ? projects : projects.slice(0, 4);
 
+  const navigateToNext = () => {
+    if (!selectedProject) return;
+    const currentIndex = projects.findIndex((p) => p.id === selectedProject.id);
+    if (currentIndex >= projects.length - 1) return;
+    setSelectedProject(projects[currentIndex + 1]);
+  };
+
+  const navigateToPrev = () => {
+    if (!selectedProject) return;
+    const currentIndex = projects.findIndex((p) => p.id === selectedProject.id);
+    if (currentIndex <= 0) return;
+    setSelectedProject(projects[currentIndex - 1]);
+  };
+
   return (
     <section className="w-full">
       <div className="container mx-auto max-w-5xl px-6 md:px-12">
@@ -25,7 +39,7 @@ const Projects: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.3 }}
+            viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
             <h2 className="text-3xl font-medium tracking-tight text-white">
@@ -82,6 +96,8 @@ const Projects: React.FC = () => {
           <ProjectModal
             project={selectedProject}
             onClose={() => setSelectedProject(null)}
+            onNext={navigateToNext}
+            onPrev={navigateToPrev}
           />
         )}
       </AnimatePresence>
@@ -98,16 +114,16 @@ const ProjectCard: React.FC<{
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: false, amount: 0.3 }}
+      viewport={{ once: true, amount: 0.3 }}
       transition={{
         duration: 0.7,
         delay: index * 0.1,
         ease: [0.16, 1, 0.3, 1],
       }}
       onClick={onClick}
-      className="group cursor-pointer"
+      className="group cursor-pointer relative z-10"
     >
-      <div className="relative mb-4 aspect-[16/9] w-full overflow-hidden rounded-lg border border-neutral-800/50 bg-transparent">
+      <div className="relative mb-4 aspect-[16/9] w-full overflow-hidden rounded-lg border border-neutral-800/50 bg-neutral-950">
         <motion.img
           src={project.imageUrl}
           alt={project.title}
@@ -128,10 +144,27 @@ const ProjectCard: React.FC<{
   );
 };
 
-const ProjectModal: React.FC<{ project: Project; onClose: () => void }> = ({
-  project,
-  onClose,
-}) => {
+const ProjectModal: React.FC<{
+  project: Project;
+  onClose: () => void;
+  onNext: () => void;
+  onPrev: () => void;
+}> = ({ project, onClose, onNext, onPrev }) => {
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") {
+        onNext();
+      } else if (e.key === "ArrowLeft") {
+        onPrev();
+      } else if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onNext, onPrev, onClose]);
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
       <motion.div
@@ -151,7 +184,7 @@ const ProjectModal: React.FC<{ project: Project; onClose: () => void }> = ({
       >
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 z-20 rounded-full bg-black/40 p-2 text-neutral-400 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white"
+          className="absolute right-4 top-4 z-20 rounded-full p-2 text-neutral-400 transition-colors hover:text-white"
         >
           <X size={20} />
         </button>
@@ -217,7 +250,7 @@ const ProjectModal: React.FC<{ project: Project; onClose: () => void }> = ({
                     className="flex flex-1 items-center justify-center gap-2 rounded bg-neutral-800 py-2 text-xs font-medium text-white transition-colors hover:bg-neutral-700"
                   >
                     <Github size={14} />
-                    GitHub
+                    Source Code
                   </a>
                 )}
                 {project.liveUrl && (
