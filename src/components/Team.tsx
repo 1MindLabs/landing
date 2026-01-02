@@ -28,7 +28,7 @@ const Team: React.FC = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.3 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="mb-12 border-b border-neutral-900 pb-6"
+        className="mb-12 border-b-2 border-neutral-700 pb-6"
       >
         <h2 className="text-3xl font-medium tracking-tight text-white">
           The Team
@@ -81,7 +81,7 @@ const TeamCard: React.FC<{
       onClick={onClick}
       className="group flex flex-col items-center text-center cursor-pointer"
     >
-      <div className="relative mb-4 h-24 w-24 overflow-hidden rounded-full border border-neutral-800 bg-neutral-900 transition-transform duration-300 group-hover:scale-105 group-hover:border-neutral-600">
+      <div className="relative mb-4 h-24 w-24 overflow-hidden rounded-full border border-neutral-800 bg-neutral-900 transition-transform duration-300 group-hover:scale-105">
         <img
           src={member.imageUrl}
           alt={member.name}

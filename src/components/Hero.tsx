@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { Github, Mail } from "lucide-react";
 import React from "react";
 
 const containerVariants = {
@@ -29,30 +28,6 @@ const itemVariants = {
 const Hero: React.FC = () => {
   return (
     <section className="relative flex min-h-[70vh] flex-col items-center justify-center px-6 text-center md:px-12">
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1, duration: 0.8 }}
-        className="fixed top-8 right-8 z-50 flex gap-6"
-      >
-        <a
-          href="https://github.com/1MindLabs"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-neutral-500 transition-colors hover:text-white"
-          aria-label="GitHub"
-        >
-          <Github size={20} />
-        </a>
-        <a
-          href="mailto:contact@1mindlabs.org"
-          className="text-neutral-500 transition-colors hover:text-white"
-          aria-label="Email"
-        >
-          <Mail size={20} />
-        </a>
-      </motion.div>
-
       <motion.div
         variants={containerVariants}
         initial="hidden"

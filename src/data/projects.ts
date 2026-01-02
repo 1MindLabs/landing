@@ -123,7 +123,7 @@ export const projects: Project[] = [
     description:
       "Automated news collection and OCR extraction system that builds datasets for trend analysis, visualizes insights with Plotly, and provides a Gemini-powered chatbot and Chrome extension for real-time misinformation detection.",
     imageUrl: "/images/projects/godseye.png",
-    githubUrl: "https://github.com/areebahmeddd/godseye",
+    githubUrl: "https://github.com/areebahmeddd/insight-ink",
     liveUrl: "https://gods-eye.onrender.com",
     builtBy: ["Areeb", "Shivansh", "Nandini", "Vishesh", "Mohit", "Anish"],
     hackathon: "Smart India Hackathon",

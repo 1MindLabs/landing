@@ -75,7 +75,7 @@ const Projects: React.FC = () => {
   return (
     <section className="w-full">
       <div className="container mx-auto max-w-5xl px-6 md:px-12">
-        <div className="mb-12 border-b border-neutral-900 pb-6">
+        <div className="mb-12 border-b-2 border-neutral-700 pb-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
