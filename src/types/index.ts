@@ -1,8 +1,7 @@
 export interface Project {
-  id: number;
   title: string;
   description: string;
-  imageUrl: string;
+  images: string[];
   githubUrl?: string;
   liveUrl?: string;
   builtBy?: string[];
@@ -11,7 +10,6 @@ export interface Project {
 }
 
 export interface TeamMember {
-  id: number;
   name: string;
   role: string;
   imageUrl: string;

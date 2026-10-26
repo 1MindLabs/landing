@@ -1,194 +1,171 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { Github, Linkedin, Mail, X } from "lucide-react";
-import React, { useState } from "react";
+import { Mail } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useId } from "react";
 import { team } from "../data/team";
-import { TeamMember } from "../types";
+import { useSelection } from "../hooks/useSelection";
+import { EASE_OUT_EXPO } from "../lib/motion";
+import type { TeamMember } from "../types";
+import { Github, Linkedin } from "./BrandIcons";
+import Modal from "./Modal";
+import SectionHeading from "./SectionHeading";
 
-const Team: React.FC = () => {
-  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
-
-  const navigateToNext = () => {
-    if (!selectedMember) return;
-    const currentIndex = team.findIndex((m) => m.id === selectedMember.id);
-    if (currentIndex >= team.length - 1) return;
-    setSelectedMember(team[currentIndex + 1]);
-  };
-
-  const navigateToPrev = () => {
-    if (!selectedMember) return;
-    const currentIndex = team.findIndex((m) => m.id === selectedMember.id);
-    if (currentIndex <= 0) return;
-    setSelectedMember(team[currentIndex - 1]);
-  };
+export default function Team() {
+  const { selected, select, close, next, prev } = useSelection(team);
 
   return (
-    <section className="container mx-auto max-w-5xl px-6 md:px-12 relative z-10">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.3 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="mb-12 border-b-2 border-neutral-700 pb-6"
-      >
-        <h2 className="text-3xl font-medium tracking-tight text-white">
-          The Team
-        </h2>
-        <p className="mt-2 text-sm text-neutral-500">
-          Builders, researchers, and creators.
-        </p>
-      </motion.div>
+    <section
+      id="team"
+      aria-labelledby="team-title"
+      className="mx-auto w-full max-w-5xl px-6 md:px-12"
+    >
+      <SectionHeading
+        id="team-title"
+        title="The Team"
+        subtitle="Builders, researchers, and creators."
+      />
 
-      <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 md:grid-cols-4 lg:gap-y-12">
+      <ul className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 md:grid-cols-4 lg:gap-y-12">
         {team.map((member, index) => (
           <TeamCard
-            key={member.id}
+            key={member.name}
             member={member}
             index={index}
-            onClick={() => setSelectedMember(member)}
+            onSelect={() => select(index)}
           />
         ))}
-      </div>
+      </ul>
 
       <AnimatePresence>
-        {selectedMember && (
+        {selected && (
           <TeamModal
-            member={selectedMember}
-            onClose={() => setSelectedMember(null)}
-            onNext={navigateToNext}
-            onPrev={navigateToPrev}
+            member={selected}
+            onClose={close}
+            onNext={next}
+            onPrev={prev}
           />
         )}
       </AnimatePresence>
     </section>
   );
-};
+}
 
-const TeamCard: React.FC<{
+interface TeamCardProps {
   member: TeamMember;
   index: number;
-  onClick: () => void;
-}> = ({ member, index, onClick }) => {
+  onSelect: () => void;
+}
+
+function TeamCard({ member, index, onSelect }: TeamCardProps) {
   return (
-    <motion.div
+    <motion.li
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{
-        duration: 0.6,
-        delay: Math.min(index * 0.03, 0.8),
-        ease: [0.16, 1, 0.3, 1],
+        duration: 0.7,
+        delay: (index % 4) * 0.05,
+        ease: EASE_OUT_EXPO,
       }}
-      onClick={onClick}
-      className="group flex flex-col items-center text-center cursor-pointer"
+      className="group relative flex flex-col items-center rounded-xl text-center outline-offset-4 outline-neutral-300 has-focus-visible:outline-2"
     >
-      <div className="relative mb-4 h-24 w-24 overflow-hidden rounded-full border border-neutral-800 bg-neutral-900 transition-transform duration-300 group-hover:scale-105">
+      <div className="relative mb-4 size-24 overflow-hidden rounded-full border border-neutral-800 bg-neutral-900 transition-transform duration-300 group-hover:scale-105">
         <img
           src={member.imageUrl}
-          alt={member.name}
-          className="h-full w-full object-cover"
+          alt=""
+          width={96}
+          height={96}
+          loading="lazy"
+          decoding="async"
+          className="size-full object-cover"
         />
       </div>
-      <h3 className="text-base font-medium text-white transition-colors group-hover:text-neutral-200">
-        {member.name}
+      <h3 className="text-base font-medium text-neutral-200 transition-colors group-hover:text-white">
+        <button
+          type="button"
+          onClick={onSelect}
+          className="outline-hidden after:absolute after:inset-0"
+        >
+          {member.name}
+        </button>
       </h3>
-      <p className="text-xs uppercase tracking-wider text-neutral-500 group-hover:text-neutral-400">
+      <p className="text-xs tracking-wider text-neutral-400 uppercase transition-colors group-hover:text-neutral-300">
         {member.role}
       </p>
-    </motion.div>
+    </motion.li>
   );
-};
+}
 
-const TeamModal: React.FC<{
+interface TeamModalProps {
   member: TeamMember;
   onClose: () => void;
   onNext: () => void;
   onPrev: () => void;
-}> = ({ member, onClose, onNext, onPrev }) => {
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") {
-        onNext();
-      } else if (e.key === "ArrowLeft") {
-        onPrev();
-      } else if (e.key === "Escape") {
-        onClose();
-      }
-    };
+}
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onNext, onPrev, onClose]);
+function TeamModal({ member, onClose, onNext, onPrev }: TeamModalProps) {
+  const titleId = useId();
+
+  const links = [
+    {
+      href: member.linkedinUrl,
+      label: `${member.name} on LinkedIn`,
+      Icon: Linkedin,
+      isExternal: true,
+    },
+    {
+      href: member.githubUrl,
+      label: `${member.name} on GitHub`,
+      Icon: Github,
+      isExternal: true,
+    },
+    {
+      href: member.email && `mailto:${member.email}`,
+      label: `Email ${member.name}`,
+      Icon: Mail,
+      isExternal: false,
+    },
+  ].filter((link) => link.href);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-        className="absolute inset-0 bg-black/80 backdrop-blur-md"
-      />
+    <Modal
+      titleId={titleId}
+      className="max-w-sm p-8 text-center"
+      onClose={onClose}
+      onNext={onNext}
+      onPrev={onPrev}
+    >
+      <div className="mx-auto mb-6 size-32 overflow-hidden rounded-full border border-neutral-800 bg-neutral-900">
+        <img
+          src={member.imageUrl}
+          alt=""
+          width={128}
+          height={128}
+          className="size-full object-cover"
+        />
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        transition={{ type: "spring", damping: 30, stiffness: 300 }}
-        className="relative w-full max-w-sm overflow-hidden rounded-xl border border-neutral-800 bg-[#0A0A0A] p-8 shadow-2xl text-center"
-      >
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 z-20 rounded-full p-2 text-neutral-400 transition-colors hover:text-white"
-        >
-          <X size={20} />
-        </button>
+      <h2 id={titleId} className="text-2xl font-semibold text-white">
+        {member.name}
+      </h2>
+      <p className="mt-2 text-sm font-medium tracking-widest text-blue-500 uppercase">
+        {member.role}
+      </p>
 
-        <div className="mx-auto mb-6 h-32 w-32 overflow-hidden rounded-full border border-neutral-800 bg-neutral-900">
-          <img
-            src={member.imageUrl}
-            alt={member.name}
-            className="h-full w-full object-cover grayscale-0"
-          />
-        </div>
-
-        <h3 className="text-2xl font-semibold text-white">{member.name}</h3>
-        <p className="mt-2 text-sm font-medium uppercase tracking-widest text-blue-500">
-          {member.role}
-        </p>
-
-        <div className="mt-8 flex justify-center gap-6">
-          {member.linkedinUrl && (
+      <ul className="mt-6 flex justify-center gap-2">
+        {links.map(({ href, label, Icon, isExternal }) => (
+          <li key={label}>
             <a
-              href={member.linkedinUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="text-neutral-500 transition-colors hover:text-white hover:scale-110"
+              href={href}
+              target={isExternal ? "_blank" : undefined}
+              rel={isExternal ? "noopener noreferrer" : undefined}
+              aria-label={label}
+              className="block rounded-full p-3 text-neutral-500 transition hover:scale-110 hover:text-white"
             >
-              <Linkedin size={20} />
+              <Icon size={20} />
             </a>
-          )}
-          {member.githubUrl && (
-            <a
-              href={member.githubUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="text-neutral-500 transition-colors hover:text-white hover:scale-110"
-            >
-              <Github size={20} />
-            </a>
-          )}
-          {member.email && (
-            <a
-              href={member.email}
-              className="text-neutral-500 transition-colors hover:text-white hover:scale-110"
-            >
-              <Mail size={20} />
-            </a>
-          )}
-        </div>
-      </motion.div>
-    </div>
+          </li>
+        ))}
+      </ul>
+    </Modal>
   );
-};
-
-export default Team;
+}

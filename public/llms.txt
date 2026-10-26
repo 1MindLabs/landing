@@ -1,0 +1,32 @@
+# 1Mind Labs
+
+> 1Mind Labs is a student-led team focused on agentic AI, machine learning, and full-stack development. This single-page site showcases our hackathon projects and team.
+
+## Site Structure
+
+- [Home](https://1mindlabs.org/): Branding and social links
+- [Projects](https://1mindlabs.org/#projects): 10 hackathon projects with details
+- [Team](https://1mindlabs.org/#team): 25 team members across various tech domains
+
+## Projects
+
+- [cognito.ai](https://cognito.1mindlabs.org): AI-powered evidence discovery for UFDR forensic reports (Smart India Hackathon, 2025)
+- [superbox.ai](https://superbox.1mindlabs.org): Platform for discovering, deploying, and testing MCP servers in isolated sandboxes (Ctrl C+Ctrl V, Glytch, 2025)
+- [Hireloom](https://hireloom.1mindlabs.org): Autonomous hiring pipeline powered by coordinated AI agents (Recurzive v2, 2025)
+- [Payzee](https://payzee.1mindlabs.org): Multilingual CBDC (e₹) payment processor (Sentinel Hack, Code Breaker Challenge, 2025)
+- [Hookit](https://hookit.1mindlabs.org): ETL-first workflow manager for on-prem and cloud data sync (GoFr Hackathon, 2024)
+- [Crypta](https://crypta.1mindlabs.org): Automated digital forensics and incident response system (Smart India Hackathon, 2024)
+- [Mivro](https://mivro.1mindlabs.org): Barcode-based product health analysis app and extension (DevHack v1, 2024)
+- [Stock Dragon](https://stock-dragon.streamlit.app): Trading research platform with strategy backtesting (Hackman v7, 2024)
+- [Bot Craft](https://github.com/areebahmeddd/botcraft): Discord bot for networking and productivity among remote workers (BotCraft by ByteXync, 2024)
+- [Gods Eye](https://gods-eye.onrender.com): News collection, OCR, and misinformation detection system (Smart India Hackathon, 2023)
+
+## Contact
+
+- Email: contact@1mindlabs.org
+- GitHub: https://github.com/1MindLabs
+- X (Twitter): https://x.com/1MindLabs
+
+## License
+
+MIT License

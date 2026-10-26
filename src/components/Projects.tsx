@@ -1,327 +1,232 @@
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  Calendar,
-  ChevronDown,
-  Github,
-  Globe,
-  Trophy,
-  Users,
-  X,
-} from "lucide-react";
-import React, { useState } from "react";
+import { Calendar, ChevronDown, Globe, Trophy, Users } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useId, useState, type ReactNode } from "react";
 import { projects } from "../data/projects";
-import { Project } from "../types";
+import { useImageCycle } from "../hooks/useImageCycle";
+import { useSelection } from "../hooks/useSelection";
+import { EASE_OUT_EXPO } from "../lib/motion";
+import type { Project } from "../types";
+import { Github } from "./BrandIcons";
+import Modal from "./Modal";
+import SectionHeading from "./SectionHeading";
 
-const Projects: React.FC = () => {
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+const INITIAL_PROJECT_COUNT = 4;
+
+export default function Projects() {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [imageIndices, setImageIndices] = useState<Record<number, number>>({
-    2: 0,
-    4: 0,
-  });
+  const { selected, select, close, next, prev } = useSelection(projects);
+  const getImageIndex = useImageCycle(projects);
 
-  const visibleProjects = isExpanded ? projects : projects.slice(0, 4);
-
-  React.useEffect(() => {
-    const timeouts: NodeJS.Timeout[] = [];
-    const intervals: NodeJS.Timeout[] = [];
-
-    const superboxDelay = 5000;
-    const payzeeDelay = 7500;
-    const cycleInterval = 5000;
-
-    const superboxTimeout = setTimeout(() => {
-      setImageIndices((prev) => ({ ...prev, 2: 1 }));
-
-      const superboxInterval = setInterval(() => {
-        setImageIndices((prev) => ({ ...prev, 2: prev[2] === 0 ? 1 : 0 }));
-      }, cycleInterval);
-
-      intervals.push(superboxInterval);
-    }, superboxDelay);
-
-    const payzeeTimeout = setTimeout(() => {
-      setImageIndices((prev) => ({ ...prev, 4: 1 }));
-
-      const payzeeInterval = setInterval(() => {
-        setImageIndices((prev) => ({ ...prev, 4: prev[4] === 0 ? 1 : 0 }));
-      }, cycleInterval);
-
-      intervals.push(payzeeInterval);
-    }, payzeeDelay);
-
-    timeouts.push(superboxTimeout, payzeeTimeout);
-
-    return () => {
-      timeouts.forEach(clearTimeout);
-      intervals.forEach(clearInterval);
-    };
-  }, []);
-
-  const navigateToNext = () => {
-    if (!selectedProject) return;
-    const currentIndex = projects.findIndex((p) => p.id === selectedProject.id);
-    if (currentIndex >= projects.length - 1) return;
-    setSelectedProject(projects[currentIndex + 1]);
-  };
-
-  const navigateToPrev = () => {
-    if (!selectedProject) return;
-    const currentIndex = projects.findIndex((p) => p.id === selectedProject.id);
-    if (currentIndex <= 0) return;
-    setSelectedProject(projects[currentIndex - 1]);
-  };
+  const visibleProjects = isExpanded
+    ? projects
+    : projects.slice(0, INITIAL_PROJECT_COUNT);
 
   return (
-    <section className="w-full">
-      <div className="container mx-auto max-w-5xl px-6 md:px-12">
-        <div className="mb-12 border-b-2 border-neutral-700 pb-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+    <section
+      id="projects"
+      aria-labelledby="projects-title"
+      className="mx-auto w-full max-w-5xl px-6 md:px-12"
+    >
+      <SectionHeading
+        id="projects-title"
+        title="From the Lab"
+        subtitle="Hackathon wins & experimental projects."
+      />
+
+      <ul className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:gap-10">
+        {visibleProjects.map((project, index) => (
+          <ProjectCard
+            key={project.title}
+            project={project}
+            index={index}
+            imageIndex={getImageIndex(project)}
+            autoFocus={isExpanded && index === INITIAL_PROJECT_COUNT}
+            onSelect={() => select(index)}
+          />
+        ))}
+      </ul>
+
+      {!isExpanded && projects.length > INITIAL_PROJECT_COUNT && (
+        <div className="mt-12 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setIsExpanded(true)}
+            className="group inline-flex min-h-11 items-center gap-2 rounded-full border border-neutral-700 bg-neutral-900/60 px-5 text-sm font-medium text-neutral-200 backdrop-blur-md transition-colors hover:border-neutral-500 hover:bg-neutral-800 hover:text-white"
           >
-            <h2 className="text-3xl font-medium tracking-tight text-white">
-              From the Lab
-            </h2>
-            <p className="mt-2 text-sm text-neutral-500">
-              Hackathon wins & experimental projects.
-            </p>
-          </motion.div>
+            View all projects
+            <span className="text-neutral-400">({projects.length})</span>
+            <ChevronDown
+              size={16}
+              className="transition-transform group-hover:translate-y-0.5"
+            />
+          </button>
         </div>
-
-        <div className="relative">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:gap-10">
-            <AnimatePresence mode="popLayout">
-              {visibleProjects.map((project, index) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  index={index}
-                  onClick={() => setSelectedProject(project)}
-                  currentImageIndex={imageIndices[project.id] || 0}
-                />
-              ))}
-            </AnimatePresence>
-          </div>
-
-          <AnimatePresence>
-            {!isExpanded && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute bottom-0 left-0 right-0 z-10 flex h-[80px] flex-col items-center justify-end bg-gradient-to-t from-black/80 via-transparent to-transparent pb-8 pointer-events-none"
-              >
-                <button
-                  onClick={() => setIsExpanded(true)}
-                  className="group flex flex-col items-center gap-2 text-sm font-medium text-neutral-300 transition-colors hover:text-white pointer-events-auto"
-                >
-                  <span className="drop-shadow-md">View all</span>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-neutral-600/50 bg-neutral-900/60 backdrop-blur-md transition-all group-hover:border-neutral-400 group-hover:bg-neutral-800 group-hover:scale-110">
-                    <ChevronDown
-                      size={20}
-                      className="transition-transform group-hover:translate-y-0.5"
-                    />
-                  </div>
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
+      )}
 
       <AnimatePresence>
-        {selectedProject && (
+        {selected && (
           <ProjectModal
-            project={selectedProject}
-            onClose={() => setSelectedProject(null)}
-            onNext={navigateToNext}
-            onPrev={navigateToPrev}
-            currentImageIndex={imageIndices[selectedProject.id] || 0}
+            project={selected}
+            imageIndex={getImageIndex(selected)}
+            onClose={close}
+            onNext={next}
+            onPrev={prev}
           />
         )}
       </AnimatePresence>
     </section>
   );
-};
+}
 
-const ProjectCard: React.FC<{
+interface ProjectCardProps {
   project: Project;
   index: number;
-  onClick: () => void;
-  currentImageIndex: number;
-}> = ({ project, index, onClick, currentImageIndex }) => {
-  const hasMultipleImages =
-    project.title.toLowerCase() === "payzee" ||
-    project.title.toLowerCase() === "superbox.ai";
+  imageIndex: number;
+  autoFocus: boolean;
+  onSelect: () => void;
+}
 
-  const images = hasMultipleImages
-    ? [project.imageUrl, project.imageUrl.replace(/\.(jpg|png)$/, "-2.$1")]
-    : [project.imageUrl];
-
+function ProjectCard({
+  project,
+  index,
+  imageIndex,
+  autoFocus,
+  onSelect,
+}: ProjectCardProps) {
   return (
-    <motion.div
+    <motion.li
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
       transition={{
         duration: 0.7,
-        delay: index * 0.1,
-        ease: [0.16, 1, 0.3, 1],
+        delay: (index % 2) * 0.1,
+        ease: EASE_OUT_EXPO,
       }}
-      onClick={onClick}
-      className="group cursor-pointer relative z-10"
+      className="group relative rounded-xl outline-offset-4 outline-neutral-300 has-focus-visible:outline-2"
     >
-      <div className="relative mb-4 aspect-[16/9] w-full overflow-hidden rounded-lg border border-neutral-800/50 bg-neutral-950">
-        <AnimatePresence mode="wait">
-          <motion.img
-            key={currentImageIndex}
-            src={images[currentImageIndex]}
-            alt={project.title}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.6 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="h-full w-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:opacity-90"
-          />
-        </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+      <div className="relative mb-4 aspect-video w-full overflow-hidden rounded-xl border border-neutral-800/50 bg-neutral-950">
+        <div className="relative size-full opacity-60 transition-opacity duration-500 group-hover:opacity-90">
+          <AnimatePresence initial={false}>
+            <motion.img
+              key={project.images[imageIndex]}
+              src={project.images[imageIndex]}
+              alt={project.title}
+              loading="lazy"
+              decoding="async"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8, ease: "easeInOut" }}
+              className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </AnimatePresence>
+        </div>
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent" />
       </div>
 
       <div className="space-y-2">
         <h3 className="text-xl font-medium text-neutral-200 transition-colors group-hover:text-white">
-          {project.title}
+          <button
+            type="button"
+            autoFocus={autoFocus}
+            onClick={onSelect}
+            className="text-left outline-hidden after:absolute after:inset-0"
+          >
+            {project.title}
+          </button>
         </h3>
-        <p className="line-clamp-2 text-sm leading-relaxed text-neutral-500 transition-colors group-hover:text-neutral-400">
+        <p className="line-clamp-2 text-sm leading-relaxed text-neutral-400 transition-colors group-hover:text-neutral-300">
           {project.description}
         </p>
       </div>
-    </motion.div>
+    </motion.li>
   );
-};
+}
 
-const ProjectModal: React.FC<{
+interface ProjectModalProps {
   project: Project;
+  imageIndex: number;
   onClose: () => void;
   onNext: () => void;
   onPrev: () => void;
-  currentImageIndex: number;
-}> = ({ project, onClose, onNext, onPrev, currentImageIndex }) => {
-  const hasMultipleImages =
-    project.title.toLowerCase() === "payzee" ||
-    project.title.toLowerCase() === "superbox.ai";
+}
 
-  const images = hasMultipleImages
-    ? [project.imageUrl, project.imageUrl.replace(/\.(jpg|png)$/, "-2.$1")]
-    : [project.imageUrl];
-
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") {
-        onNext();
-      } else if (e.key === "ArrowLeft") {
-        onPrev();
-      } else if (e.key === "Escape") {
-        onClose();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onNext, onPrev, onClose]);
+function ProjectModal({
+  project,
+  imageIndex,
+  onClose,
+  onNext,
+  onPrev,
+}: ProjectModalProps) {
+  const titleId = useId();
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-        className="absolute inset-0 bg-black/80 backdrop-blur-md"
-      />
+    <Modal
+      titleId={titleId}
+      className="max-w-3xl"
+      onClose={onClose}
+      onNext={onNext}
+      onPrev={onPrev}
+    >
+      <div className="flex flex-col md:flex-row">
+        <div className="relative h-56 w-full shrink-0 overflow-hidden md:h-auto md:w-[45%]">
+          <AnimatePresence initial={false}>
+            <motion.img
+              key={project.images[imageIndex]}
+              src={project.images[imageIndex]}
+              alt={project.title}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8, ease: "easeInOut" }}
+              className="absolute inset-0 size-full object-cover"
+            />
+          </AnimatePresence>
+          <div className="absolute inset-0 bg-linear-to-t from-neutral-950 via-transparent to-transparent md:bg-linear-to-r md:from-transparent md:to-neutral-950" />
+        </div>
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        transition={{ type: "spring", damping: 30, stiffness: 300 }}
-        className="relative w-full max-w-3xl overflow-hidden rounded-xl border border-neutral-800 bg-[#0A0A0A] shadow-2xl"
-      >
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 z-20 rounded-full p-2 text-neutral-400 transition-colors hover:text-white"
-        >
-          <X size={20} />
-        </button>
-
-        <div className="flex flex-col md:flex-row">
-          <div className="relative h-56 w-full md:h-auto md:w-[45%] overflow-hidden">
-            <AnimatePresence mode="wait">
-              <motion.img
-                key={currentImageIndex}
-                src={images[currentImageIndex]}
-                alt={project.title}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.8, ease: "easeInOut" }}
-                className="h-full w-full object-cover"
-              />
-            </AnimatePresence>
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-[#0A0A0A]" />
+        <div className="flex flex-1 flex-col p-6 md:p-8">
+          <div className="mb-8">
+            <h2 id={titleId} className="pr-8 text-3xl font-semibold text-white">
+              {project.title}
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-neutral-400">
+              {project.description}
+            </p>
           </div>
 
-          <div className="flex flex-1 flex-col p-6 md:p-8">
-            <div className="mb-8">
-              <h3 className="text-3xl font-semibold text-white">
-                {project.title}
-              </h3>
-              <p className="mt-4 text-sm leading-relaxed text-neutral-400">
-                {project.description}
-              </p>
-            </div>
+          <div className="mt-auto rounded-xl border border-neutral-800 bg-neutral-900/30 p-4">
+            <dl className="grid grid-cols-2 gap-4">
+              {project.builtBy && (
+                <Detail
+                  icon={<Users size={12} />}
+                  label="Team"
+                  className="col-span-2"
+                >
+                  {project.builtBy.join(", ")}
+                </Detail>
+              )}
+              {project.hackathon && (
+                <Detail icon={<Trophy size={12} />} label="Event">
+                  {project.hackathon}
+                </Detail>
+              )}
+              {project.date && (
+                <Detail icon={<Calendar size={12} />} label="Date">
+                  {project.date}
+                </Detail>
+              )}
+            </dl>
 
-            <div className="mt-auto rounded-lg border border-neutral-800 bg-neutral-900/30 p-4">
-              <div className="grid grid-cols-2 gap-y-4 gap-x-4">
-                {project.builtBy && (
-                  <div className="col-span-2">
-                    <span className="mb-1 flex items-center gap-1.5 text-xs font-medium text-neutral-500">
-                      <Users size={12} /> Team
-                    </span>
-                    <div className="text-sm text-neutral-200">
-                      {project.builtBy.join(", ")}
-                    </div>
-                  </div>
-                )}
-                {project.hackathon && (
-                  <div>
-                    <span className="mb-1 flex items-center gap-1.5 text-xs font-medium text-neutral-500">
-                      <Trophy size={12} /> Event
-                    </span>
-                    <div className="text-sm text-neutral-200">
-                      {project.hackathon}
-                    </div>
-                  </div>
-                )}
-                {project.date && (
-                  <div>
-                    <span className="mb-1 flex items-center gap-1.5 text-xs font-medium text-neutral-500">
-                      <Calendar size={12} /> Date
-                    </span>
-                    <div className="text-sm text-neutral-200">
-                      {project.date}
-                    </div>
-                  </div>
-                )}
-              </div>
-
+            {(project.githubUrl || project.liveUrl) && (
               <div className="mt-4 flex gap-3 border-t border-neutral-800 pt-4">
                 {project.githubUrl && (
                   <a
                     href={project.githubUrl}
-                    className="flex flex-1 items-center justify-center gap-2 rounded bg-neutral-800 py-2 text-xs font-medium text-white transition-colors hover:bg-neutral-700"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex min-h-10 flex-1 items-center justify-center gap-2 rounded-full border border-neutral-700 bg-neutral-900/60 px-4 text-sm font-medium text-neutral-200 transition-colors hover:border-neutral-500 hover:bg-neutral-800 hover:text-white"
                   >
                     <Github size={14} />
                     Source Code
@@ -330,19 +235,37 @@ const ProjectModal: React.FC<{
                 {project.liveUrl && (
                   <a
                     href={project.liveUrl}
-                    className="flex flex-1 items-center justify-center gap-2 rounded bg-white py-2 text-xs font-medium text-black transition-colors hover:bg-neutral-200"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex min-h-10 flex-1 items-center justify-center gap-2 rounded-full border border-white bg-white px-4 text-sm font-medium text-black transition-colors hover:border-neutral-200 hover:bg-neutral-200"
                   >
                     <Globe size={14} />
                     Live Demo
                   </a>
                 )}
               </div>
-            </div>
+            )}
           </div>
         </div>
-      </motion.div>
+      </div>
+    </Modal>
+  );
+}
+
+interface DetailProps {
+  icon: ReactNode;
+  label: string;
+  className?: string;
+  children: ReactNode;
+}
+
+function Detail({ icon, label, className, children }: DetailProps) {
+  return (
+    <div className={className}>
+      <dt className="mb-1 flex items-center gap-1.5 text-xs font-medium text-neutral-400">
+        {icon} {label}
+      </dt>
+      <dd className="text-sm text-neutral-200">{children}</dd>
     </div>
   );
-};
-
-export default Projects;
+}

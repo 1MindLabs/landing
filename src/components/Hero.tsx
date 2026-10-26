@@ -1,7 +1,7 @@
-import { motion } from "framer-motion";
-import React from "react";
+import { motion, type Variants } from "motion/react";
+import { EASE_OUT_EXPO } from "../lib/motion";
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -12,7 +12,7 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { y: 20, opacity: 0, filter: "blur(5px)" },
   visible: {
     y: 0,
@@ -20,46 +20,44 @@ const itemVariants = {
     filter: "blur(0px)",
     transition: {
       duration: 1,
-      ease: [0.16, 1, 0.3, 1],
+      ease: EASE_OUT_EXPO,
     },
   },
 };
 
-const Hero: React.FC = () => {
+export default function Hero() {
   return (
     <section className="relative flex min-h-[70vh] flex-col items-center justify-center px-6 text-center md:px-12">
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="flex max-w-5xl flex-col items-center space-y-8"
+        className="flex max-w-5xl flex-col items-center gap-8"
       >
-        <motion.span
+        <motion.p
           variants={itemVariants}
-          className="text-xs font-mono font-medium tracking-[0.2em] text-neutral-500 uppercase"
+          className="font-mono text-xs font-medium tracking-[0.2em] text-neutral-400 uppercase"
         >
-          2022-2026
-        </motion.span>
+          2022–2026
+        </motion.p>
 
         <motion.h1
           variants={itemVariants}
           className="text-5xl font-semibold tracking-tight text-white sm:text-7xl md:text-8xl lg:text-9xl"
         >
           1Mind{" "}
-          <span className="inline-block italic font-light tracking-wide text-neutral-300">
+          <span className="inline-block font-light tracking-wide text-neutral-300 italic">
             Labs
           </span>
         </motion.h1>
 
         <motion.p
           variants={itemVariants}
-          className="max-w-none text-lg font-light leading-relaxed text-neutral-400 sm:text-xl md:whitespace-nowrap"
+          className="text-lg leading-relaxed font-light text-neutral-400 sm:text-xl md:whitespace-nowrap"
         >
           An umbrella for interdisciplinary hackathon projects!
         </motion.p>
       </motion.div>
     </section>
   );
-};
-
-export default Hero;
+}
